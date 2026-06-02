@@ -1,33 +1,24 @@
 from fastapi import FastAPI, File, UploadFile, Request
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import Response, JSONResponse
+from fastapi.responses import Response
 import uvicorn
 import os
 
 app = FastAPI()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+CORS_HEADERS = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "POST, OPTIONS, GET",
+    "Access-Control-Allow-Headers": "*",
+    "Access-Control-Max-Age": "86400",
+}
 
 @app.get("/")
 def health():
-    return {"status": "ok"}
+    return Response(content='{"status":"ok"}', media_type="application/json", headers=CORS_HEADERS)
 
 @app.options("/remove-bg")
 async def options_remove_bg(request: Request):
-    return JSONResponse(
-        content={},
-        headers={
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "POST, OPTIONS",
-            "Access-Control-Allow-Headers": "*",
-        }
-    )
+    return Response(status_code=200, headers=CORS_HEADERS)
 
 @app.post("/remove-bg")
 async def remove_bg(file: UploadFile = File(...)):
@@ -37,7 +28,7 @@ async def remove_bg(file: UploadFile = File(...)):
     return Response(
         content=output_bytes,
         media_type="image/png",
-        headers={"Access-Control-Allow-Origin": "*"}
+        headers=CORS_HEADERS
     )
 
 if __name__ == "__main__":
