@@ -9,7 +9,6 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_origin_regex=".*",
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -19,17 +18,6 @@ app.add_middleware(
 def health():
     return {"status": "ok"}
 
-@app.options("/remove-bg")
-async def options_remove_bg():
-    return Response(
-        status_code=200,
-        headers={
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "POST, OPTIONS",
-            "Access-Control-Allow-Headers": "*",
-        }
-    )
-
 @app.post("/remove-bg")
 async def remove_bg(file: UploadFile = File(...)):
     from rembg import remove
@@ -37,8 +25,7 @@ async def remove_bg(file: UploadFile = File(...)):
     output_bytes = remove(input_bytes)
     return Response(
         content=output_bytes,
-        media_type="image/png",
-        headers={"Access-Control-Allow-Origin": "*"}
+        media_type="image/png"
     )
 
 if __name__ == "__main__":
